@@ -15,17 +15,31 @@
 // ---------------------------------------------------------------------------
 
 /** Resultado de analizar una URL. */
-export interface UrlParts {
-  /** Protocolo tal como lo devuelve la WHATWG URL, p. ej. "https:". */
+export interface ParsedUrl {
   protocol: string;
-  /** Host (puede incluir puerto), p. ej. "api.ejemplo.com:443". */
   host: string;
-  /** Ruta, p. ej. "/users". */
   pathname: string;
-  /** Query string con el "?" inicial, p. ej. "?id=1&name=Ana". */
   search: string;
-  /** Lista de pares [clave, valor] de los query params. */
-  query: Array<[string, string]>;
+  query: [string, string][];
+}
+
+export function parseUrl(url: string): ParsedUrl {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    throw new Error(`URL inválida: ${url}`);
+  }
+
+  const query: [string, string][] = Array.from(parsed.searchParams.entries());
+
+  return {
+    protocol: parsed.protocol,
+    host: parsed.host,
+    pathname: parsed.pathname,
+    search: parsed.search,
+    query,
+  };
 }
 
 /** Categoría de un código de estado HTTP. */
@@ -43,27 +57,6 @@ export type Headers = Record<string, string>;
 // ---------------------------------------------------------------------------
 // Funciones a implementar
 // ---------------------------------------------------------------------------
-
-/**
- * TODO: Analiza una URL y devuelve sus partes.
- *
- * Pista: usa el constructor `new URL(url)` (viene con Node, no requiere
- * ninguna librería). Sus propiedades te dan todo lo que necesitas:
- *
- *   const u = new URL("https://api.ejemplo.com/users?id=1");
- *   u.protocol // → "https:"
- *   u.host     // → "api.ejemplo.com"
- *   u.pathname // → "/users"
- *   u.search   // → "?id=1"
- *   u.searchParams.entries() // → iterador [["id","1"]]
- *
- * Si la URL no es válida, `new URL()` lanza TypeError — no hace falta
- * que lo manejes aparte, se propagará solo.
- */
-export function parseUrl(url: string): UrlParts {
-  // TODO: tu implementación aquí
-  throw new Error("Not implemented");
-}
 
 /**
  * TODO: Clasifica un código de estado HTTP en su categoría.
