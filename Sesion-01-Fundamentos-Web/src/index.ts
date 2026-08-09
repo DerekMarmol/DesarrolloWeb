@@ -103,8 +103,26 @@ export function classifyStatus(code: number): StatusCategory {
  * nombre y valor. Recuerda `.trim()` para quitar espacios sobrantes.
  */
 export function parseHeaders(text: string): Headers {
-  // TODO: tu implementación aquí
-  throw new Error("Not implemented");
+  const headers: Headers = {};
+  const lines = text.split("\n");
+
+  for (const line of lines) {
+    const colonIndex = line.indexOf(":");
+    if (colonIndex === -1) {
+      continue;
+    }
+
+    const name = line.slice(0, colonIndex).trim();
+    const value = line.slice(colonIndex + 1).trim();
+
+    if (name === "" && value === "") {
+      continue;
+    }
+
+    headers[name] = value;
+  }
+
+  return headers;
 }
 
 /**
@@ -126,10 +144,22 @@ export function summarizeRequest(
   status: number,
   headersText: string,
 ): string {
-  // TODO: tu implementación aquí
-  throw new Error("Not implemented");
-}
+  const category = classifyStatus(status);
+  const headers = parseHeaders(headersText);
 
+  const headerLines = Object.entries(headers)
+    .map(([name, value]) => `  • ${name}: ${value}`)
+    .join("\n");
+
+  return [
+    "Resumen de la petición",
+    "──────────────────────",
+    `URL:     ${url}`,
+    `Status:  ${status} (${category})`,
+    "Headers:",
+    headerLines,
+  ].join("\n");
+}
 // ---------------------------------------------------------------------------
 // CLI (opcional, pero recomendado para probar manualmente)
 // ---------------------------------------------------------------------------
