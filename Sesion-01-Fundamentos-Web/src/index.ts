@@ -23,6 +23,12 @@ export interface ParsedUrl {
   query: [string, string][];
 }
 
+/**
+ * Analiza una URL y devuelve sus partes principales.
+ * @param url - La URL completa a analizar (ej. "https://api.ejemplo.com/users?id=1")
+ * @returns Un objeto con protocolo, host, path y query params
+ * @throws {Error} Si la URL no tiene un formato válido
+ */
 export function parseUrl(url: string): ParsedUrl {
   let parsed: URL;
   try {
@@ -55,21 +61,13 @@ export type StatusCategory =
 export type Headers = Record<string, string>;
 
 // ---------------------------------------------------------------------------
-// Funciones a implementar
+// Funciones implementadas
 // ---------------------------------------------------------------------------
 
 /**
- * TODO: Clasifica un código de estado HTTP en su categoría.
- *
- * Reglas:
- *   100–199 → "1xx Informativo"
- *   200–299 → "2xx Éxito"
- *   300–399 → "3xx Redirección"
- *   400–499 → "4xx Error del cliente"
- *   500–599 → "5xx Error del servidor"
- *   otro    → "Desconocido"
- *
- * Pista: un único `if / else if` con comparaciones de rangos basta.
+ * Clasifica un código de estado HTTP según su rango numérico.
+ * @param code - Código de estado HTTP (ej. 200, 404, 500)
+ * @returns La categoría correspondiente ("2xx Éxito", "4xx Error del cliente", etc.)
  */
 export function classifyStatus(code: number): StatusCategory {
   if (code >= 100 && code <= 199) {
@@ -86,21 +84,12 @@ export function classifyStatus(code: number): StatusCategory {
     return "Desconocido";
   }
 }
+
 /**
- * TODO: Parsea un texto con líneas de cabeceras HTTP al formato
- * `Record<string, string>`. El separador entre nombre y valor es ":".
- *
- * Reglas:
- *   - Cada línea no vacía debe tener formato "Nombre: valor".
- *   - Ignora líneas vacías o que no contengan ":".
- *   - No tienes que normalizar mayúsculas/minúsculas del nombre.
- *
- * Ejemplo:
- *   parseHeaders("Content-Type: application/json\nAuthorization: Bearer abc")
- *   → { "Content-Type": "application/json", "Authorization": "Bearer abc" }
- *
- * Pista: `text.split("\n")` te da las líneas; `String.split(":")` te separa
- * nombre y valor. Recuerda `.trim()` para quitar espacios sobrantes.
+ * Parsea un texto con líneas "Nombre: valor" a un objeto de cabeceras.
+ * Ignora líneas vacías o que no contengan ":".
+ * @param text - Texto con una cabecera HTTP por línea
+ * @returns Un objeto donde cada llave es el nombre de la cabecera y el valor es su contenido
  */
 export function parseHeaders(text: string): Headers {
   const headers: Headers = {};
@@ -126,18 +115,11 @@ export function parseHeaders(text: string): Headers {
 }
 
 /**
- * TODO: Combina las funciones anteriores en un resumen legible.
- *
- * El formato exacto lo decides tú (los tests solo verifican que el string
- * no esté vacío y que contenga la URL y el código). Un ejemplo:
- *
- *   Resumen de la petición
- *   ──────────────────────
- *   URL:     https://api.ejemplo.com/users
- *   Status:  200 (2xx Éxito)
- *   Headers:
- *     • Content-Type: application/json
- *     • Authorization: Bearer abc
+ * Combina parseUrl, classifyStatus y parseHeaders en un resumen legible.
+ * @param url - La URL de la petición
+ * @param status - El código de estado HTTP de la respuesta
+ * @param headersText - Texto crudo con las cabeceras de la respuesta
+ * @returns Un string con el resumen formateado de la petición
  */
 export function summarizeRequest(
   url: string,
@@ -160,6 +142,7 @@ export function summarizeRequest(
     headerLines,
   ].join("\n");
 }
+
 // ---------------------------------------------------------------------------
 // CLI (opcional, pero recomendado para probar manualmente)
 // ---------------------------------------------------------------------------
