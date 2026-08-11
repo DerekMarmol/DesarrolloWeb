@@ -95,4 +95,19 @@ h1, h2 {
   cursor: pointer;
 }
 
-/* Diseño responsivo — se completa el Día 3 con @media queries y grid */
+/* Diseño responsivo */
+@media (min-width: 1024px) {
+  .galeria {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .galeria {
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+}
