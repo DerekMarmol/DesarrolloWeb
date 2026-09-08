@@ -59,7 +59,19 @@ function leerBody(req) {
  * @returns {{ nombre: string, puerto: number }}
  */
 export function parsearArgumentos(argv) {
-    throw new Error('Not implemented: parsearArgumentos');
+    const args = argv.slice(2);
+    let nombre = 'invitado';
+    let puerto = 3000;
+
+    for (let i = 0; i < args.length; i++) {
+        if (args[i] === '--nombre' && args[i + 1]) {
+            nombre = args[i + 1];
+        } else if (args[i] === '--puerto' && args[i + 1]) {
+            puerto = Number(args[i + 1]);
+        }
+    }
+
+    return { nombre, puerto };
 }
 
 /**
@@ -72,7 +84,11 @@ export function parsearArgumentos(argv) {
  * @returns {{ puerto: number, nombreApp: string, archivoDatos: string }}
  */
 export function obtenerConfig(env) {
-    throw new Error('Not implemented: obtenerConfig');
+    return {
+        puerto: env.PORT ? Number(env.PORT) : 3000,
+        nombreApp: env.NOMBRE_APP || 'mensajes-api',
+        archivoDatos: env.ARCHIVO_DATOS || 'data/mensajes.json',
+    };
 }
 
 /**
@@ -80,7 +96,12 @@ export function obtenerConfig(env) {
  * @returns {{ plataforma: string, nucleos: number, memoriaLibreMB: number, hostname: string }}
  */
 export function infoSistema() {
-    throw new Error('Not implemented: infoSistema');
+    return {
+        plataforma: os.platform(),
+        nucleos: os.cpus().length,
+        memoriaLibreMB: Math.round(os.freemem() / 1024 / 1024),
+        hostname: os.hostname(),
+    };
 }
 
 /**
@@ -145,4 +166,3 @@ export function crearServidor(config = {}) {
 export function iniciarServidor(config = {}) {
     throw new Error('Not implemented: iniciarServidor');
 }
-
