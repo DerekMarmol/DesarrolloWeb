@@ -96,9 +96,8 @@ export async function leerLineas(ruta) {
  * @returns {string}
  */
 export function rutaAbsoluta(rutaRelativa) {
-    throw new Error('Not implemented: rutaAbsoluta');
+    return join(__dirname, rutaRelativa);
 }
-
 /**
  * Parsea el contenido de un archivo de configuración ".env" (simple).
  * Formato por línea: CLAVE=VALOR  (ignora líneas vacías y las que empiezan con #).
@@ -108,5 +107,24 @@ export function rutaAbsoluta(rutaRelativa) {
  * @returns {Record<string, string>}
  */
 export function parsearEnv(contenido) {
-    throw new Error('Not implemented: parsearEnv');
+    const resultado = {};
+    const lineas = contenido.split('\n');
+
+    for (const linea of lineas) {
+        const limpia = linea.trim();
+        if (limpia === '' || limpia.startsWith('#')) {
+            continue;
+        }
+
+        const igualIndex = limpia.indexOf('=');
+        if (igualIndex === -1) {
+            continue;
+        }
+
+        const clave = limpia.slice(0, igualIndex).trim().toUpperCase();
+        const valor = limpia.slice(igualIndex + 1).trim();
+        resultado[clave] = valor;
+    }
+
+    return resultado;
 }
