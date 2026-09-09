@@ -15,7 +15,7 @@
 
 import { createReadStream, createWriteStream } from 'node:fs';
 import { pipeline } from 'node:stream/promises';
-import { Readable } from 'node:stream';
+import { Readable, Transform } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -73,7 +73,38 @@ export function generarId() {
  * @returns {Promise<number>} cantidad de líneas que coincidieron (0 si no hay).
  */
 export async function filtrarLogs(origen, destino, texto) {
-    throw new Error('Not implemented: filtrarLogs');
+    let contador = 0;
+
+    const filtro = new Transform({
+        transform(chunk, encoding, callback) {
+            this._buffer = (this._buffer || '') + chunk.toString();
+            const lineas = this._buffer.split('\n');
+            this._buffer = lineas.pop();
+
+            for (const linea of lineas) {
+                if (linea.includes(texto)) {
+                    contador++;
+                    this.push(linea + '\n');
+                }
+            }
+            callback();
+        },
+        flush(callback) {
+            if (this._buffer && this._buffer.includes(texto)) {
+                contador++;
+                this.push(this._buffer + '\n');
+            }
+            callback();
+        },
+    });
+
+    await pipeline(
+        createReadStream(origen, { encoding: 'utf-8' }),
+        filtro,
+        createWriteStream(destino)
+    );
+
+    return contador;
 }
 
 /**
@@ -85,7 +116,23 @@ export async function filtrarLogs(origen, destino, texto) {
  * @returns {Promise<string[]>}
  */
 export async function leerLineas(ruta) {
-    throw new Error('Not implemented: leerLineas');
+    return new Promise((resolve, reject) => {
+        const stream = createReadStream(ruta, { encoding: 'utf-8' });
+        let data = '';
+
+        stream.on('data', (chunk) => {
+            data += chunk;
+        });
+
+        stream.on('end', () => {
+            const lineas = data.split('\n').filter((linea) => linea.trim() !== '');
+            resolve(lineas);
+        });
+
+        stream.on('error', (err) => {
+            reject(err);
+        });
+    });
 }
 
 /**
