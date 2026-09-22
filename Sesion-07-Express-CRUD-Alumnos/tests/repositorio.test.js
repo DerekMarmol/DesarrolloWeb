@@ -1,11 +1,3 @@
-/**
- * repositorio.test.js — Pruebas UNITARIAS del repositorio
- * Tarea Sesión 7 · Desarrollo Web · UMG
- *
- * Estas pruebas describen el comportamiento esperado de tus métodos.
- * No se conectan a Express ni a HTTP: prueban solo la capa de datos.
- */
-
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { RepositorioAlumnos, datosSemilla } from '../src/repositorio.js';
