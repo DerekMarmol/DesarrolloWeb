@@ -1,22 +1,8 @@
-/**
- * frontend.test.js — Pruebas del SITIO (frontend) con jsdom
- * Tarea Sesión 7 · Desarrollo Web · UMG
- *
- * Cargan tu `public/index.html`, ejecutan tu `public/app.js` en un DOM
- * simulado y reemplazan `fetch` por un mock. Verifican que el sitio:
- *   - Liste los alumnos al iniciar
- *   - Abra los <dialog> para crear/editar/eliminar
- *   - Haga POST / PUT / DELETE con el header x-api-key y el cuerpo correcto
- *
- * 📌 Usa los ids del esqueleto (#btnNuevo, #formAlumno, #dialogoForm,
- *    #dialogoEliminar, #btnConfirmarEliminar, #mensaje, etc.).
- */
-
 import { describe, it, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { JSDOM } from 'jsdom';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -28,7 +14,6 @@ const ALUMNOS = [
     { id: 'a-2', nombre: 'Luis', apellido: 'Pérez', email: 'luis.perez@umg.edu.gt', edad: 22 },
 ];
 
-/** Respuesta mínima compatible con la que consume app.js */
 const respuesta = (body, { ok = true, status = 200 } = {}) => ({
     ok,
     status,
@@ -38,7 +23,6 @@ const respuesta = (body, { ok = true, status = 200 } = {}) => ({
 let dom;
 let llamadas;
 
-/** Espera a que se resuelvan las promesas pendientes (fetch mockeado) */
 const esperar = () => new Promise((r) => setTimeout(r, 0));
 
 function buscarBoton(contenedor, texto) {
@@ -50,12 +34,10 @@ beforeEach(async () => {
     const html = await readFile(join(publicDir, 'index.html'), 'utf-8');
     dom = new JSDOM(html, { url: 'http://localhost:3000/' });
 
-    // jsdom no implementa showModal/close de <dialog>: los simulamos
     const { HTMLDialogElement } = dom.window;
     HTMLDialogElement.prototype.showModal = function () { this.setAttribute('open', ''); };
     HTMLDialogElement.prototype.close = function () { this.removeAttribute('open'); };
 
-    // Mock de fetch: registra cada llamada y responde según el método
     llamadas = [];
     dom.window.fetch = async (url, opciones = {}) => {
         llamadas.push({ url: String(url), opciones });
@@ -77,14 +59,12 @@ beforeEach(async () => {
         return respuesta({}, { ok: false, status: 400 });
     };
 
-    // Exponer los globals que usa public/app.js
     global.window = dom.window;
     global.document = dom.window.document;
     global.fetch = dom.window.fetch;
     global.Event = dom.window.Event;
 
-    // Ejecutar app.js (cache-busting para re-ejecutarlo en cada test)
-    await import(`${join(publicDir, 'app.js')}?t=${Date.now()}-${Math.random()}`);
+    await import(`${pathToFileURL(join(publicDir, 'app.js')).href}?t=${Date.now()}-${Math.random()}`);
     dom.window.document.dispatchEvent(new dom.window.Event('DOMContentLoaded'));
     await esperar();
 });
@@ -200,7 +180,6 @@ describe('Frontend · errores', () => {
     });
 });
 
-/** Verifica que la petición incluya el header x-api-key (sin importar mayúsculas) */
 function tieneClaveApi(llamada) {
     const headers = llamada.opciones.headers ?? {};
     return Object.keys(headers).some((k) => k.toLowerCase() === 'x-api-key');

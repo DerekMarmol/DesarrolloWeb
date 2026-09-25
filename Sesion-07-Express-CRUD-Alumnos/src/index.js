@@ -1,11 +1,3 @@
-/**
- * index.js — Punto de entrada del servidor
- * Tarea Sesión 7 · Desarrollo Web · UMG
- *
- * Uso:  pnpm start   (o)   pnpm run dev
- * Se carga configuración con: node --env-file=config.env src/index.js
- */
-
 import { crearApp } from './app.js';
 import { RepositorioAlumnos, datosSemilla } from './repositorio.js';
 

@@ -1,11 +1,3 @@
-/**
- * api.test.js — Pruebas de INTEGRACIÓN de la API REST + sitio estático
- * Tarea Sesión 7 · Desarrollo Web · UMG
- *
- * Levantan la app de Express en un puerto libre y consumen la API con fetch().
- * Describen el contrato exacto de cada endpoint (tus rutas deben cumplirlo).
- */
-
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { crearApp } from '../src/app.js';
@@ -34,9 +26,6 @@ afterEach(async () => {
     await new Promise((resolve) => servidor.close(resolve));
 });
 
-// ============================================================
-// Sitio estático
-// ============================================================
 describe('Sitio estático (public/)', () => {
     it('GET / sirve el index.html', async () => {
         const res = await fetch(`${base}/`);
@@ -59,9 +48,6 @@ describe('Sitio estático (public/)', () => {
     });
 });
 
-// ============================================================
-// Autenticación falsa (header x-api-key)
-// ============================================================
 describe('Middleware de autenticación falsa', () => {
     const alumno = { nombre: 'Pedro', apellido: 'Ruiz', email: 'pedro@umg.edu.gt', edad: 19 };
 
@@ -89,9 +75,6 @@ describe('Middleware de autenticación falsa', () => {
     });
 });
 
-// ============================================================
-// CRUD de alumnos
-// ============================================================
 describe('CRUD /alumnos', () => {
     const auth = { 'Content-Type': 'application/json', 'x-api-key': CLAVE };
 
